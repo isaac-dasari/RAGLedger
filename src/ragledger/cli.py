@@ -20,6 +20,7 @@ from ragledger.snapshots import create_snapshot, list_snapshots
 
 app = typer.Typer(help="RAGLedger: RAG corpus versioning and eval data provenance")
 console = Console()
+DEFAULT_MANIFEST_OUTPUT = MANIFEST_DIR / "manifest.yml"
 
 
 @app.command()
@@ -102,15 +103,22 @@ def validate(
 @app.command()
 def manifest(
     corpus: Annotated[str, typer.Option("--corpus", "-c")],
-    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    output: Annotated[Path, typer.Option("--output", "-o")] = DEFAULT_MANIFEST_OUTPUT,
     eval_set: Annotated[str, typer.Option("--eval-set")] = "",
     prompt_version: Annotated[str, typer.Option("--prompt-version")] = "",
     top_k: Annotated[int, typer.Option("--top-k")] = 5,
 ) -> None:
     """Create a reproducibility manifest for a snapshot."""
 
-    result = build_manifest(corpus, eval_set=eval_set, prompt_version=prompt_version, retriever_top_k=top_k)
-    output_path = output or (MANIFEST_DIR / f"{corpus.replace(':', '_')}.yml")
+    output_path = output
+    if output == DEFAULT_MANIFEST_OUTPUT:
+        output_path = MANIFEST_DIR / f"{corpus.replace(':', '_')}.yml"
+    result = build_manifest(
+        corpus,
+        eval_set=eval_set,
+        prompt_version=prompt_version,
+        retriever_top_k=top_k,
+    )
     write_manifest(result, output_path)
     console.print(f"[green]Manifest written to {output_path}[/green]")
 
