@@ -1,0 +1,13 @@
+required_metadata:
+  - owner
+  - source
+  - retention_class
+
+blocked_patterns:
+  - email
+  - phone
+  - ssn
+  - private_key
+
+max_document_age_days: 3650
+allow_duplicate_titles: false
